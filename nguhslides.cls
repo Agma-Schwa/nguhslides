@@ -136,6 +136,17 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
 %% =====================================================================
+%% \SetBackgroundImage : Set the background image
+%% =====================================================================
+%%
+%% Example:
+%%
+%%   \SetBackgroundImage{background.png}
+%%
+%% This sets the background image for all slides. If no image is set, the
+%% background will be white.
+%%
+%% =====================================================================
 %% \SetFont : Set all fonts used by the class
 %% =====================================================================
 %%
@@ -199,6 +210,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \setmainfont { Noto~Sans }
 \newfontfamily \g__nguh_title_font { Noto~Sans }
+\tl_new:N \g__nguh_background_image_tl
 
 %% Adjust page dimensions etc. This mainly boils down to disabling
 %% margin pars, the header, footer, etc.
@@ -226,10 +238,14 @@
 \cs_generate_variant:Nn \seq_set_split_keep_spaces:Nnn { Nnx }
 
 %% Set a background image.
-\cs_new:Npn \__nguh_bg_image:n #1 {
-     \AddToShipoutPictureBG {
-         \includegraphics[width=\paperwidth, height=\paperheight]{#1}
-     }
+\cs_new:Npn \__nguh_bg_image: {
+    \tl_if_empty:NF \g__nguh_background_image_tl {
+        \AddToShipoutPictureBG {
+            \includegraphics [ width = \paperwidth, height = \paperheight ] {
+                \tl_use:N \g__nguh_background_image_tl
+            }
+        }
+    }
 }
 
 %% End a paragraph.
@@ -483,7 +499,7 @@
 %% Sections in a presentation are a slide with centred text.
 \RenewDocumentCommand \section {s m} {
     \clearpage
-    \__nguh_bg_image:n { background.png }
+    \__nguh_bg_image:
     \nointerlineskip
     \vglue \z@ plus 1 fill
     \group_begin:
@@ -504,7 +520,7 @@
 %% Individual slide.
 \NewDocumentCommand \slide { m } {
     \clearpage
-    \__nguh_bg_image:n { background.png }
+    \__nguh_bg_image:
     \group_begin:
         \centering
         \LARGE
@@ -516,6 +532,11 @@
     \group_end:
     \large
     \nointerlineskip
+}
+
+%% Set the background.
+\NewDocumentCommand \SetBackgroundImage { m } {
+    \tl_gset:Nn \g__nguh_background_image_tl { #1 }
 }
 
 %% Set a font.
