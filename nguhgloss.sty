@@ -58,6 +58,13 @@
 %%       buy-3sg.past
 %%   }
 %%
+%%
+%% The format of the first and second line of a multigloss can be set using
+%% \MultiglossFormatFirst and \MultiglossFormatSecond, respectively:
+%%
+%%   \MultiglossFormatFirst{\ttfamily} % Format first line in typewriter font.
+%%   \MultiglossFormatSecond{\itshape} % Format second line in italics.
+%%
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesExplPackage{nguhgloss}{2024/06/11}{v1.0}{Package for typesetting glosses}
 
@@ -65,6 +72,22 @@
 %% Internals
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \cs_generate_variant:Nn \seq_set_split_keep_spaces:Nnn { Nnx }
+
+%% Variables.
+\tl_new:N \g__nguh_multigloss_first_tl
+\tl_new:N \g__nguh_multigloss_second_tl
+
+%% Initial values.
+\tl_gset:Nn \g__nguh_multigloss_first_tl { \itshape }
+\tl_gset:Nn \g__nguh_multigloss_second_tl { \scshape }
+
+%% End a paragraph.
+\cs_new:Npn \__nguh_end_par: {
+    \ifvmode\else
+        \unskip
+        \par
+    \fi
+}
 
 \cs_new:Npn \__nguh_gloss_insert_table_header: {
     %% Generating columns doesn’t seem to work, so this hack will do. If you
@@ -90,7 +113,7 @@
 
 %% Rescan a token list.
 \cs_new:Npn \__nguh_gloss_rescan:n #1 {
-    { \tl_rescan:nn {} { #1 } }
+    { \tl_rescan:nn {} { \ignorespaces #1 } }
 }
 
 %% Format a single line of a gloss.
@@ -181,9 +204,9 @@
 
     \hbox {
         \begin{tabular}{@{}l}
-            \itshape \tl_rescan:nn {} {#1} \\
+            \tl_use:N \g__nguh_multigloss_first_tl \__nguh_gloss_rescan:n {#1} \\
             \noalign{\vskip-6pt}
-            \scshape \tl_rescan:nn {} {#2} \\
+            \tl_use:N \g__nguh_multigloss_second_tl \__nguh_gloss_rescan:n {#2} \\
         \end{tabular}
     }
 
@@ -265,4 +288,12 @@
 
     \end{sloppypar}
     \group_end:
+}
+
+\NewDocumentCommand \MultiglossFormatFirst { m } {
+    \tl_gset:Nn \g__nguh_multigloss_first_tl { #1 }
+}
+
+\NewDocumentCommand \MultiglossFormatSecond { m } {
+    \tl_gset:Nn \g__nguh_multigloss_second_tl { #1 }
 }

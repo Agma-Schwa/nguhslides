@@ -191,14 +191,6 @@
     }
 }
 
-%% End a paragraph.
-\cs_new:Npn \__nguh_end_par: {
-    \ifvmode\else
-        \unskip
-        \par
-    \fi
-}
-
 %% Current list depth.
 \int_new:N \g__nguh_list_depth_int
 
