@@ -78,6 +78,13 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Settings
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% =====================================================================
+%% \EveryPage : Like \everypar but inserted at the start of every page.
+%% =====================================================================
+%%
+%% Example:
+%%
+%%   \def\EveryPage{\begin{tikzpicture} ... \end{tikzpicture}}
 %%
 %% =====================================================================
 %% \SetBackgroundImage : Set the background image
@@ -113,6 +120,13 @@
 %%
 %% This sets the font used for slide and section titles.
 %%
+%% =====================================================================
+%% \TitleRuleSkip : Skip to insert between the slide title and its rule
+%% =====================================================================
+%%
+%% Example:
+%%
+%%   \def\TitleRuleSkip{1em}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Preamble
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -156,6 +170,8 @@
 \setmainfont { Noto~Sans }
 \newfontfamily \g__nguh_title_font { Noto~Sans }
 \tl_new:N \g__nguh_background_image_tl
+\let \EveryPage \relax
+\def \TitleRuleSkip { .5em }
 
 %% Adjust page dimensions etc. This mainly boils down to disabling
 %% margin pars, the header, footer, etc.
@@ -227,13 +243,20 @@
     \group_end:
 }
 
+%% Start a new page.
+\cs_new:Npn \__nguh_start_page: {
+    \__nguh_end_par:
+    \clearpage
+    \__nguh_bg_image:
+    { \EveryPage }
+}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Interface
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Sections in a presentation are a slide with centred text.
 \RenewDocumentCommand \section {s m} {
-    \clearpage
-    \__nguh_bg_image:
+    \__nguh_start_page:
     \nointerlineskip
     \vglue \z@ plus 1 fill
     \group_begin:
@@ -252,17 +275,18 @@
 }
 
 %% Individual slide.
-\NewDocumentCommand \slide { m } {
-    \clearpage
-    \__nguh_bg_image:
+\NewDocumentCommand \slide { s m } {
+    \__nguh_start_page:
     \group_begin:
         \centering
         \LARGE
         \g__nguh_title_font
-        #1
-        \vskip .5em
-        \__nguh_centred_rule:nn { 8cm } { 1pt }
-        \vskip .5em
+        #2
+        \IfBooleanTF #1 {} {
+            \vskip \TitleRuleSkip \relax
+            \__nguh_centred_rule:nn { 8cm } { 1pt }
+            \vskip .5em
+        }
     \group_end:
     \large
     \nointerlineskip
