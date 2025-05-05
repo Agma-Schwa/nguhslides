@@ -328,3 +328,6 @@
     \rightskip \z@
     \addvspace{\medskipamount}
 }
+
+%% Utilities
+\let\nf\normalfont
